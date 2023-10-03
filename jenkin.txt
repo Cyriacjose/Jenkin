@@ -1,57 +1,62 @@
-pipeline {
+pipeline{
     agent any
+    stages{
+        stage(‘Build’){
+            steps{
+                echo "Build automation tool: Maven"
+            }
+        }
+        stage(‘Unit_and_Integration_Tests’){
+            steps{
+                echo "JUnit for unit testing"
 
-    stages {
-        stage('Build') {
-            steps {
-                echo 'sucess'
+            }
+            post{
+                     always{
+                          emailext to: "cyriacjoseplackattu@gmail.com",
+                          subject: "Unit_and_Integration_Tests:  ,→ ${currentBuild.currentResult}",
+                          body: "Unit_and_Integration_Tests status :  ,→ ${currentBuild.currentResult}",
+                          attachLog: true
+
+                        }
+                }
+
+        }
+        stage(‘Code_Analysis’){
+            steps{
+                echo "SonarQube for code analysis"
             }
         }
-        stage('Unit and Integration Tests') {
-            steps {
-                echo 'Running'
+        stage(‘Security_Scan’){
+            steps{
+                echo "OWASP ZAP for security scanning"
+            }
+            post{
+                    always{
+                         emailext to: "cyriacjoseplackattu@gmail.com",
+                         subject: "Security_Scan: ${currentBuild.currentResult}",
+                         body: "Security_Scan status :  ,→ ${currentBuild.currentResult}",
+                         attachLog: true
+
+                        }
+                }
+        }
+        stage(‘Deploy_to_Staging’){
+            steps{
+                echo "SSH for deploying the application to staging"
+
+             }
+        }  
+        stage(‘Integration_Tests_on_Staging’){
+            steps{
+                echo "Selenium for Integration Tests on Staging"
             }
         }
-        stage('Code Analysis') {
-            steps {
-                echo 'code analysis'
+        stage(‘Deploy_to_production’){
+            steps{
+                echo "SSH for deploying the application to production servers"
             }
         }
-        stage('Security Scan') {
-            steps {
-                echo 'security scan'
-            }
-        }
-        stage('Deploy to Staging') {
-            steps {
-                echo 'Deploying'
-            }
-        }
-        stage('Integration Tests on Staging') {
-            steps {
-                echo 'Integration '
-            }
-        }
-        stage('Deploy to Production') {
-            steps {
-                echo 'Deploy to a production'
-            }
-        }
+
     }
-    post {
-        success {
-            emailext (
-                subject: 'Pipeline Successful',
-                body: 'The Jenkins pipeline has completed successfully.',
-                to: 'cyriacjoseplackattu@gmail.com'
-            )
-        }
-        failure {
-            emailext (
-                subject: 'Pipeline Failed',
-                body: 'The Jenkins pipeline has failed. Please check the logs.',
-                to: 'cyriacjoseplackattu@gmail.com'
-            )
-        }
-    }
-}
+ }
